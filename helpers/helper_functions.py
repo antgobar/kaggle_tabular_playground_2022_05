@@ -1,6 +1,12 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[16]:
+
+
 import pandas as pd
 from typing import Tuple
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 def load_data(dir: str or None) -> Tuple[pd.DataFrame, pd.DataFrame]:
     if dir:
@@ -30,3 +36,12 @@ def get_prepared_data(X):
     X_cat_encoded = encode_string_value(X_cat)
     df = X_num.join(X_cat_encoded)
     return df
+
+def get_scaled_data(X):
+    scaler = StandardScaler()
+    encod_data = get_prepared_data(X)
+    scaler.fit(encod_data)
+    normal_data = scaler.transform(encod_data)
+    df_normal_data = pd.DataFrame(normal_data, index=encod_data.index, columns=encod_data.columns)
+    return df_normal_data
+
