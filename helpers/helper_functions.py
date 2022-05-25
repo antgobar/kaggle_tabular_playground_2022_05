@@ -23,7 +23,7 @@ def encode_string_value(X_cat: pd.DataFrame):
         to_join = to_join.join(encoded_df)
     return to_join
 
-  def compute_interations(df: pd.DataFrame):
+def compute_interations(df: pd.DataFrame):
     df['i_02_21'] = (df.f_21 + df.f_02 > 5.2).astype(int) - (df.f_21 + df.f_02 < -5.3).astype(int)
     df['i_05_22'] = (df.f_22 + df.f_05 > 5.1).astype(int) - (df.f_22 + df.f_05 < -5.4).astype(int)
     i_00_01_26 = df.f_00 + df.f_01 + df.f_26

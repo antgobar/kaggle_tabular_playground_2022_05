@@ -1,11 +1,12 @@
 
-from sklearn.model_selection import GroupKFold
+from sklearn.model_selection import KFold
 from sklearn.metrics import roc_auc_score
 import matplotlib.pyplot as plt
 
 from tensorflow import keras
 
-from NN_CONFIG import EPOCHS, BATCH_SIZE
+BATCH_SIZE = 4096
+EPOCHS = 200 
 
 def plot_model(history, model, fold, save = False):
 
@@ -41,8 +42,9 @@ def plot_model(history, model, fold, save = False):
     plt.ylabel("Loss", fontsize=16)
     plt.legend(loc="upper right", fontsize="x-large")
     plt.tick_params(labelsize=14)
-    plt.savefig(f'Loss_plots/loss_{model.name}_fold{fold}', bbox_inches='tight')
-    #plt.show()
+    if save:
+        plt.savefig(f'Loss_plots/loss_{model.name}_fold{fold}', bbox_inches='tight')
+    plt.show()
     plt.clf()
 
     plt.figure(figsize=(15, 8))
@@ -70,7 +72,7 @@ def plot_model(history, model, fold, save = False):
     plt.tick_params(labelsize=14)
     if save:
         plt.savefig(f'Loss_plots/auc_{model.name}_fold_{fold}', bbox_inches='tight')
-    #plt.show()
+    plt.show()
     plt.clf()
 
 
@@ -80,22 +82,22 @@ def train_model(train, labels, model_in, n_folds=5):
                     patience=20, monitor="val_loss", restore_best_weights=True, verbose = 1
                 )
     learn_reducer = keras.callbacks.ReduceLROnPlateau(monitor = 'val_loss', factor = 0.7, patience = 5, verbose = 1)
-
-    gkf = GroupKFold(n_folds)
+    kf = KFold(n_folds)
     store = []
 
     model_in.summary()
 
     for fold, (train_idx, val_idx) in enumerate(
-        gkf.split(train, labels)
+        kf.split(train)
     ):
+        
         print(f"Fitting fold {fold} for {model_in.name}...")
         model = keras.models.clone_model(model_in)
         model.compile(
             optimizer="adam", loss="binary_crossentropy", metrics=[keras.metrics.AUC()]
         )
 
-        X_train, X_val = train[train_idx], train[val_idx]
+        X_train, X_val = train.iloc[train_idx], train.iloc[val_idx]
         y_train, y_val = labels.iloc[train_idx], labels.iloc[val_idx]
 
         history = model.fit(
@@ -103,7 +105,7 @@ def train_model(train, labels, model_in, n_folds=5):
             y_train,
             validation_data=(X_val, y_val),
             epochs=EPOCHS,
-            verbose=0,
+            verbose=1,
             batch_size=BATCH_SIZE,
             callbacks=[
                 early_stopping, learn_reducer
