@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 
 from tensorflow import keras
 
-BATCH_SIZE = 4096
-EPOCHS = 200 
+BATCH_SIZE = 2048
+EPOCHS = 400 
 
 def plot_model(history, model, fold, save = False):
 
