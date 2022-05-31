@@ -20,7 +20,7 @@ def encode_string_value(X_cat: pd.DataFrame):
         encoded = enc.fit_transform(series)
         col_names = [f'{i+1}_' + l for l in list(enc.categories_[0])]
         encoded_df = pd.DataFrame(encoded.toarray(), columns = col_names)
-        to_join = to_join.join(encoded_df)
+        to_join = to_join.reset_index(drop=True).join(encoded_df.reset_index(drop=True))
     return to_join
 
 def compute_interations(df: pd.DataFrame):
